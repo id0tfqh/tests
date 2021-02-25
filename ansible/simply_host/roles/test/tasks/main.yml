@@ -1,0 +1,71 @@
+---
+- name: Update cache pckages
+  become: true
+  become_user: "{{ user }}"
+  apt:
+    update_cache: yes
+    name: "*"
+
+- name: Update and upgrade packages
+  become: true
+  become_user: "{{ user }}"
+  apt:
+    upgrade: dist
+
+- name: Install packages
+  become: true
+  become_user: "{{ user }}"
+  apt:
+    install_recommends: no
+    name: "{{ packages }}"
+
+- name: make of project directory
+  become: true
+  become_user: "{{ user }}"
+  file:
+    path: "{{ path_project }}"
+    state: 'directory'
+    mode: 0775
+
+- name: clone project
+  become: true
+  become_user: "{{ user }}"
+  shell: git clone "{{ git_url }}" "{{ path_project }}"
+
+- name: improve nginx config
+  become: true
+  become_user: "{{ user }}"
+  copy:
+    src: test.conf
+    dest: /etc/nginx/conf.d/test.conf
+
+- name: autostart nginx
+  become: true
+  become_user: "{{ user }}"
+  shell: systemctl enable nginx
+
+- name: improve sysctl
+  become: true
+  become_user: "{{ user }}"
+  copy:
+    src: sysctl_custom_net.conf
+    dest: /etc/sysctl.d/sysctl_custom.conf
+
+- name: copy ssh key 1
+  become: true
+  become_user: "{{ user }}"
+  copy:
+    src: testKey1.pub
+    dest: /root/.ssh/testKey1.pub
+
+- name: copy ssh key 2
+  become: true
+  become_user: "{{ user }}"
+  copy:
+    src: testKey2.pub
+    dest: /root/.ssh/testKey2.pub
+
+- name: Reboot
+  become: true
+  become_user: "{{ user }}"
+  shell: /sbin/shutdown -r +1

@@ -1,0 +1,24 @@
+[Unit]
+Description=node_exporter - Exporter for machine metrics.
+Documentation=https://github.com/prometheus/node_exporter
+After=network.target
+
+[Service]
+User={{ node_exporter_user }}
+Group={{ node_exporter_group }}
+EnvironmentFile={{ node_exporter_config_file }}
+ExecStart={{ node_exporter_program }} $OPTIONS
+ExecReload=/bin/kill -HUP $MAINPID
+TimeoutStopSec=20s
+SendSIGKILL=no
+
+SyslogIdentifier=node_exporter
+Restart=always
+
+CPUShares={{ node_exporter_cpu_shares }}
+CPUQuota={{ node_exporter_quota }}
+MemoryLimit={{ node_exporter_quota }}
+BlockIOWeight={{ node_exporter_dlock_io }}
+
+[Install]
+WantedBy=multi-user.target

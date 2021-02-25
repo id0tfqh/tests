@@ -1,0 +1,111 @@
+---
+- name: group add
+  become: true
+  become_user: root
+  group:
+    name: "{{ node_exporter_group }}"
+    state: present
+    gid: 9998
+    system: true
+
+- name: user add
+  become: true
+  become_user: root
+  user:
+    name: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_group }}"
+    home: "{{ node_exporter_home }}"
+    createhome: false
+    shell: /usr/sbin/nologin
+    comment: node_exporter
+    state: present
+    uid: 9999
+    system: true
+
+- name: create home user directory
+  become: true
+  become_user: root
+  file:
+    path: "{{ node_exporter_home }}"
+    owner: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_group }}"
+    mode: "u=rwx,g=rx,o="
+    state: directory
+
+- name: create logging directory
+  become: true
+  become_user: root
+  file:
+    path: "{{ node_exporter_log_dir }}"
+    owner: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_group }}"
+    mode: "u=rwx,g=rx,o=rx"
+    state: directory
+
+- name: create node_exporter working dir
+  become: true
+  become_user: root
+  file:
+    path: "{{ node_exporter_dir }}"
+    owner: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_group }}"
+    mode: "u=rwx,g=rx,o="
+    state: directory
+
+- name: download running file
+  become: true
+  become_user: root
+  get_url:
+    url: "{{ node_exporter_storage_file }}"
+    dest: "{{ node_exporter_program }}"
+    owner: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_group }}"
+    mode: "u=rwx,go=rx"
+
+- name: Copy logging config.
+  become: true
+  become_user: root
+  template:
+    src: "node-exporter.j2"
+    dest: "{{ node_exporter_log_config }}"
+    owner: root
+    group: root
+    mode: "u=rw,go=r"
+
+- name: Copy running config.
+  become: true
+  become_user: root
+  template:
+    src: "node_exporter.default.conf.j2"
+    dest: "{{ node_exporter_config_file }}"
+    owner: root
+    group: root
+    mode: "u=rw,go=r"
+  notify: restart node_exporter
+
+- name: install service
+  include: service-{{ ansible_service_mgr }}.yml
+
+- name: Service Enabled
+  become: true
+  become_user: root
+  service:
+    name: node_exporter
+    enabled: "{{ node_exporter_service_enable }}"
+    use: "{{ ansible_service_mgr }}"
+  when: node_exporter_service_manage
+
+- name: Service State
+  become: true
+  become_user: root
+  service:
+    name: node_exporter
+    state: "{{ node_exporter_service_state }}"
+    use: "{{ ansible_service_mgr }}"
+  register: _node_exporter_service_state
+  when: node_exporter_service_manage
+
+- name: Reload units
+  become: true
+  become_user: root
+  shell: systemctl --system daemon-reload; systemctl enable node_exporter.service; systemctl restart rsyslog

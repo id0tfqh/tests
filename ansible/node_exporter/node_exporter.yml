@@ -1,0 +1,6 @@
+---
+- hosts: all
+  tasks:
+    - name: Install service file for auto start system
+      include_role:
+        name: node_exporter

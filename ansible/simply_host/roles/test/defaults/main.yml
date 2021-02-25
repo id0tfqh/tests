@@ -1,0 +1,7 @@
+---
+# defaults file for new_system
+
+user: root
+packages: [nginx, zsh, wget, git]
+path_project: "/var/www"
+git_url: "https://github.com/test-project/test_data.git"
