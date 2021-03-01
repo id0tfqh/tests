@@ -1,0 +1,50 @@
+[mysqld]
+# GENERAL #
+default-storage-engine         = InnoDB
+skip-name-resolve
+
+# CACHES AND LIMITS #
+host-cache-size                = 8192
+tmp-table-size                 = 32M
+max-heap-table-size            = 32M
+max_join_size                  = 68719476736
+thread-cache-size              = 4096
+open-files-limit               = 65535
+sort_buffer_size               = 4M
+read_buffer_size               = 2M
+read_rnd_buffer_size           = 4M
+interactive-timeout            = 7200
+wait-timeout                   = 7200
+
+# INNODB #
+innodb-flush-method            = O_DSYNC
+innodb-log-file-size           = 1G
+innodb-flush-log-at-trx-commit = 2
+innodb-buffer-pool-size        = 8G
+innodb_buffer_pool_instances   = 8
+innodb_thread_concurrency      = 12
+#innodb_monitor_enable          = all
+
+# LOGGING #
+slow-query-log                 = 1
+slow-query-log-file            = /var/log/mysql/slow.log
+long_query_time                = 2
+log-queries-not-using-indexes  = 1
+log-slow-admin-statements      = 1
+log-error-verbosity            = 3
+log-error                      = /var/log/mysql/error.log
+##general_log                    = 1
+##general_log_file               = /var/log/mysql/mysql.log
+
+# BINARY LOGGING #
+skip-log-bin
+##log-bin                        = /var/lib/mysql/mysql-bin
+##expire-logs-days               = 14
+##binlog_format                  = ROW
+##sync-binlog                    = 1
+
+# Up old authentication
+default_authentication_plugin=mysql_native_password
+
+[mysqldump]
+max_allowed_packet = 512M
